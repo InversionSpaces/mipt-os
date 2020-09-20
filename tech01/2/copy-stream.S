@@ -1,11 +1,15 @@
+    #include "sys/syscall.h"
+
     .intel_syntax noprefix
     .global _start
     .text
+.equ STDIN, 0
+.equ STDOUT, 1
 .equ buffer_size, 1024
 _start:
 // rax = read(stdin, buffer, buffer_size) {
-    mov rax, 0
-    mov rdi, 0
+    mov rax, SYS_read
+    mov rdi, STDIN
     mov rsi, OFFSET buffer
     mov rdx, buffer_size
 
@@ -17,8 +21,8 @@ _start:
 
 // write(stdout, buffer, rax)
     mov rdx, rax
-    mov rax, 1
-    mov rdi, 1
+    mov rax, SYS_write
+    mov rdi, STDOUT
     mov rsi, OFFSET buffer
 
     syscall

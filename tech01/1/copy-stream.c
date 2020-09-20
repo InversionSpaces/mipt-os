@@ -2,7 +2,7 @@
 
 extern long syscall(long number, ...);
 
-#define BUFFER_SIZE (1024)
+static const int BUFFER_SIZE = 1024;
 
 void _start() {
     char buffer[BUFFER_SIZE];

@@ -1,11 +1,14 @@
+    #include "sys/syscall.h"
     .intel_syntax noprefix
     .global _start
     .text
 
+.equ STDIN, 0
+.equ STDOUT, 1
 .equ chunck_size, 32 * 1024 * 1024
 
 .macro get_break
-    mov rax, 12
+    mov rax, SYS_brk
     mov rdi, 0
     syscall
 .endm
@@ -13,7 +16,7 @@
 .macro allocate_chunk
     mov rax, [heap_end]
     lea rdi, [rax + chunck_size]
-    mov rax, 12
+    mov rax, SYS_brk
     syscall
     add [heap_end], rax
 .endm
@@ -86,9 +89,9 @@ reverse_output_loop:
     inc rdi
 
 // write(stdout, rdi, rdx) {
-    mov rax, 1
+    mov rax, SYS_write
     mov rsi, rdi
-    mov rdi, 1
+    mov rdi, STDOUT
     syscall
 // }
 
@@ -97,12 +100,14 @@ reverse_output_loop:
     jmp reverse_output_loop
 
 reverse_output_return:
+// write(stdout, heap_start, rdx - rcx) {
     sub rdx, rcx
     inc rdx
-    mov rax, 1
-    mov rdi, 1
+    mov rax, SYS_write
+    mov rdi, STDOUT
     mov rsi, [heap_start]
     syscall
+// }
 
     ret
 
@@ -115,8 +120,8 @@ read_input:
 
 read_loop:
 // read(stdin, carret, heap_end - carret) {
-    xor rax, rax
-    xor rdi, rdi
+    mov rax, SYS_read
+    mov rdi, STDIN
     mov rsi, [carret]
     mov rdx, [heap_end]
     sub rdx, [carret]
