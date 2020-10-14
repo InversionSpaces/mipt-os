@@ -84,7 +84,7 @@ int main(int argc, char* argv[]) {
 
     line_width = N * W + 1;
 
-    const int fd = open(argv[1], O_RDWR | O_CREAT, S_IRWXU);
+    const int fd = open(argv[1], O_RDWR | O_CREAT, S_IRUSR | S_IWUSR);
     if (fd == -1)
         return 3;
 

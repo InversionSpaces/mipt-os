@@ -3,6 +3,7 @@
 #include <string.h>
 #include <unistd.h>
 #include <sys/stat.h>
+#include <limits.h>
 
 int print_link(const char* filename) {
     char* abs_path = realpath(filename, NULL);
@@ -22,7 +23,7 @@ int create_link(const char* filename) {
     else
         ++only_name;
 
-    char buffer[1024]; // MAX_PATH
+    char buffer[PATH_MAX]; // MAX_PATH
     sprintf(buffer, "link_to_%s", only_name);
 
     if (symlink(filename, buffer) == -1)

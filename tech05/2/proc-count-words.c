@@ -4,6 +4,10 @@
 #include <stdio.h>
 
 int main() {
+    int res = setvbuf(stdin, NULL, _IONBF, 0);
+    if (res != 0)
+        return 1;
+
     int count = 0;
 
     while (1) {
