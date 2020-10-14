@@ -4,6 +4,7 @@
 #include <fcntl.h>
 #include <string.h>
 #include <sys/stat.h>
+#include <limits.h>
 
 typedef enum {
     ERROR,
@@ -19,7 +20,7 @@ CHECK_RESULT is_invalid_file(const int fd) {
     if (!(S_IXUSR & file_stat.st_mode))
         return VALID;
 
-    char buffer[1024]; // MAX_PATH
+    char buffer[PATH_MAX]; // MAX_PATH
     int readed = read(fd, buffer, sizeof(buffer));
     if (readed == -1)
         return ERROR;
