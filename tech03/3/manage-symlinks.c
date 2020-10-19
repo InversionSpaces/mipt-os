@@ -24,7 +24,7 @@ int create_link(const char* filename) {
         ++only_name;
 
     char buffer[PATH_MAX]; // MAX_PATH
-    sprintf(buffer, "link_to_%s", only_name);
+    snprintf(buffer, PATH_MAX, "link_to_%s", only_name);
 
     if (symlink(filename, buffer) == -1)
         return 1;
