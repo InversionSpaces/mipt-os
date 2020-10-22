@@ -11,34 +11,18 @@
 int main()
 {
     const int infd = fileno(stdin);
-    struct stat file_stat = {};
-    if (fstat(infd, &file_stat) == -1)
+    char buffer[5 * 1024] = {};
+
+    const int rres = read(infd, buffer, sizeof(buffer) - 1);
+    if (rres == -1)
         return 1;
-
-    const size_t buffer_size = file_stat.st_size + 1;
-    char* buffer = malloc(buffer_size);
-    if (buffer == NULL)
-        return 2;
-
-    const int rres = read(infd, buffer, file_stat.st_size);
-    if (rres == -1) {
-        free(buffer);
-        return 3;
-    }
-
     buffer[rres] = 0;
 
-    const size_t program_size = file_stat.st_size + 512;
-    char* program = malloc(program_size);
-
-    if (program == NULL) {
-        free(buffer);
-        return 4;
-    }
+    char program[1024 * 1024] = {};
 
     snprintf(
         program,
-        program_size,
+        sizeof(program),
         "#include <stdio.h>\n"
         "int main() {\n"
         "   int res = (%s);\n"
@@ -46,16 +30,12 @@ int main()
         "   return 0;\n"
         "}\n",
         buffer);
-    free(buffer);
 
     int srcfd = open("src.c", O_CREAT | O_EXCL | O_WRONLY, 0640);
-    if (srcfd == -1) {
-        free(program);
+    if (srcfd == -1)
         return 5;
-    }
 
     const int wres = write(srcfd, program, strlen(program));
-    free(program);
     if (wres == -1)
         return 6;
 
@@ -83,7 +63,21 @@ int main()
     if (chmod("./megaprog", 0750) == -1)
         return 11;
 
-    execlp("./megaprog", "megaprog", NULL);
+    pid = fork();
+    if (pid == -1)
+        return 12;
 
-    return 12;
+    if (pid == 0) {
+        execlp("./megaprog", "megaprog", NULL);
+        return 13;
+    }
+
+    wait(&status);
+    if (status != 0)
+        return 14;
+
+    if (unlink("megaprog") == -1)
+        return 10;
+
+    return 0;
 }
