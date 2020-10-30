@@ -39,9 +39,9 @@ void* my_malloc(size_t size) {
 
         retval->next = inserted;
         retval->size = size;
-        retval->is_free = 0;
     }
 
+    retval->is_free = 0;
     return retval + 1;
 }
 
